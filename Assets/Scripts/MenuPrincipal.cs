@@ -4,8 +4,11 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Controla el menú principal (Requisito 1).
 /// Cada botón de módulo llama a un método público de aquí (se conecta en el Inspector).
-/// La navegación por teclado la da el sistema de eventos de Unity + este script,
-/// que selecciona el primer botón al abrir la escena.
+///
+/// Navegación teclado + mouse:
+/// - Al iniciar, selecciona el primer botón (para poder usar teclado de una).
+/// - Si el mouse deseleccionó todo y el usuario pulsa una flecha, se vuelve a
+///   seleccionar un botón automáticamente para retomar el control con teclado.
 /// </summary>
 public class MenuPrincipal : MonoBehaviour
 {
@@ -17,7 +20,26 @@ public class MenuPrincipal : MonoBehaviour
 
     void Start()
     {
-        // Para que el teclado funcione, debe haber un botón seleccionado de inicio.
+        SeleccionarPrimerBoton();
+    }
+
+    void Update()
+    {
+        // Si NO hay nada seleccionado (porque el mouse deseleccionó) y el usuario
+        // empieza a usar el teclado, reactivamos la selección en el primer botón.
+        if (EventSystem.current != null &&
+            EventSystem.current.currentSelectedGameObject == null)
+        {
+            float vertical = Input.GetAxisRaw("Vertical");
+            bool tab = Input.GetKeyDown(KeyCode.Tab);
+
+            if (Mathf.Abs(vertical) > 0.1f || tab)
+                SeleccionarPrimerBoton();
+        }
+    }
+
+    void SeleccionarPrimerBoton()
+    {
         if (primerBotonSeleccionado != null && EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(primerBotonSeleccionado);
     }

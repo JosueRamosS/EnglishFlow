@@ -6,8 +6,9 @@ using System.Collections;
 
 /// <summary>
 /// Va en la escena "Carga" (Requisito 3).
-/// Lee el destino guardado en CargadorDeEscenas y hace la carga ASÍNCRONA real
-/// con LoadSceneAsync, moviendo una barra de progreso según el avance real.
+/// Hace carga ASÍNCRONA real con LoadSceneAsync, PERO además fuerza un tiempo
+/// mínimo visible (ej. 2 segundos) para que la barra se vea avanzar de 0 a 100%
+/// contando los números, aunque la escena real cargue al instante.
 /// </summary>
 public class PantallaDeCarga : MonoBehaviour
 {
@@ -17,44 +18,48 @@ public class PantallaDeCarga : MonoBehaviour
     [Tooltip("Texto que muestra el porcentaje, ej: 45%. (Opcional)")]
     public TMP_Text textoPorcentaje;
 
+    [Tooltip("Segundos que como mínimo durará la pantalla de carga.")]
+    public float duracionMinima = 2f;
+
     void Start()
     {
-        // Empezamos a cargar la escena destino en segundo plano.
         StartCoroutine(CargarAsync(CargadorDeEscenas.EscenaDestino));
     }
 
     IEnumerator CargarAsync(string nombreEscena)
     {
-        // Pequeña espera para que se vea la pantalla de carga aunque cargue rápido.
-        yield return new WaitForSeconds(0.3f);
-
         AsyncOperation operacion = SceneManager.LoadSceneAsync(nombreEscena);
 
-        // No activamos la escena hasta que la barra llegue al 100%.
+        // No activamos la escena hasta que terminemos la animación de la barra.
         operacion.allowSceneActivation = false;
 
-        while (!operacion.isDone)
+        float tiempo = 0f;
+
+        // Avanzamos la barra según el tiempo transcurrido (0 a 1) durante duracionMinima.
+        while (tiempo < duracionMinima)
         {
-            // Unity reporta progreso de 0 a 0.9, luego espera activación.
-            // Lo normalizamos a 0-1 dividiendo entre 0.9.
-            float progreso = Mathf.Clamp01(operacion.progress / 0.9f);
+            tiempo += Time.deltaTime;
+
+            // progresoVisual va de 0 a 1 a lo largo de "duracionMinima".
+            float progresoVisual = Mathf.Clamp01(tiempo / duracionMinima);
 
             if (barraProgreso != null)
-                barraProgreso.value = progreso;
+                barraProgreso.value = progresoVisual;
 
             if (textoPorcentaje != null)
-                textoPorcentaje.text = Mathf.RoundToInt(progreso * 100f) + "%";
-
-            // Cuando la carga terminó (0.9), activamos la escena.
-            if (operacion.progress >= 0.9f)
-            {
-                if (barraProgreso != null) barraProgreso.value = 1f;
-                if (textoPorcentaje != null) textoPorcentaje.text = "100%";
-                yield return new WaitForSeconds(0.2f);
-                operacion.allowSceneActivation = true;
-            }
+                textoPorcentaje.text = Mathf.RoundToInt(progresoVisual * 100f) + "%";
 
             yield return null; // esperar al siguiente frame
         }
+
+        // Aseguramos que quede exactamente en 100%.
+        if (barraProgreso != null) barraProgreso.value = 1f;
+        if (textoPorcentaje != null) textoPorcentaje.text = "100%";
+
+        // Pequeña pausa para que se vea el 100% antes de entrar.
+        yield return new WaitForSeconds(0.2f);
+
+        // La carga real ya terminó hace rato (progress >= 0.9); activamos la escena.
+        operacion.allowSceneActivation = true;
     }
 }

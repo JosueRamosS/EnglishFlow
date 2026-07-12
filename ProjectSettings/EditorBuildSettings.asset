@@ -6,7 +6,22 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/Scenes/MenuPrincipal.unity
+    guid: 5c47cd8bbeca446569fe3798356d2924
+  - enabled: 1
+    path: Assets/Scenes/Carga.unity
+    guid: 6030498290af848428e3c94a48a37e3c
+  - enabled: 1
+    path: Assets/Scenes/Configuracion.unity
+    guid: 8225ca778b30b4ba6b16529724c38d82
+  - enabled: 1
+    path: Assets/Scenes/ModuloGramatica.unity
+    guid: 7792012fcc684423db6dd7bf8286720d
+  - enabled: 1
+    path: Assets/Scenes/Resumen.unity
+    guid: 32af5d33171124d09b7a9779bd2b63f3
+  - enabled: 1
+    path: Assets/Scenes/ModuloVocabulario.unity
+    guid: 03b8a63390f754e189683278d9695c73
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
