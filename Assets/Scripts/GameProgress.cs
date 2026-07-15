@@ -106,14 +106,20 @@ public static class GameProgress
         PlayerPrefs.Save();
     }
 
-    /// <summary>Devuelve el módulo con menor dominio: el que hay que reforzar.</summary>
+    /// <summary>
+    /// Devuelve el módulo con menor dominio ENTRE los que ya se intentaron al menos
+    /// una vez (si un módulo nunca se jugó, su dominio es 0 por defecto y no sería
+    /// justo "recomendarlo" solo por eso). Si todavía no se practicó nada, recomienda
+    /// "vocabulario" como punto de partida.
+    /// </summary>
     public static string ModuloARecomendar()
     {
         string[] modulos = { "vocabulario", "gramatica", "lectura", "escritura" };
-        string peor = modulos[0];
+        string peor = "vocabulario";
         int menor = 101;
         foreach (string m in modulos)
         {
+            if (ObtenerIntentos(m) == 0) continue;
             int dom = ObtenerDominio(m);
             if (dom < menor)
             {
